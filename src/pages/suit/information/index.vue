@@ -5,8 +5,8 @@
       <view :class="style.header">
         <image src="@/assets/photos/suitapply-suitInformation.svg"></image>
       </view>
-      <view :class="style.flexColumn">
-        <Card title="| 我的信息" style="color: var(--wjh-color-primary)">
+      <view :class="style.flexColumn" style="width: 80% ;margin: 0 auto;">
+        <Card title="| 我的信息" style="color: var(--wjh-color-primary) ">
           <view :class="style.text1"> 学号 </view>
           <view :class="style.text4">{{ nowData.student_id }}</view>
           <view
