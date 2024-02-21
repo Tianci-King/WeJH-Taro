@@ -1,9 +1,7 @@
 <template>
   <theme-config>
     <!-- {{ serviceStore.suit.campusSuitInfo.name }} -->
-    <view :class="styles['suit-title-bar']">
-      <title-bar title="正装借用" back-button />
-    </view>
+    <title-bar title="正装借用" back-button />
     <view :class="styles['campus-selector']">
       <view :class="styles.container">
         <view
@@ -39,9 +37,9 @@
           >{{ spec.spec }}</view>
         </view>
         <view :class="styles.title">剩余数量</view>
-        <view :class="styles['remain-suit-num']">
-          {{ suitStock === -1 ? "-" : suitStock }}
-          <view v-if="suitStock !== undefined && suitStock <= 3 && suitStock !== -1" :class="styles.warning"> <icon type="warn" color="#f0ad3e"/> <view :class="styles.text">余量不足</view></view>
+        <view :class="styles['remain-suit-num']"> &ensp;
+          {{ suitStock }}
+          <view v-if="suitStock !== undefined && suitStock <= 3" :class="styles.warning"> <icon type="warn" color="#f0ad3e"/> <view :class="styles.text">余量不足</view></view>
         </view>
         <view :class="styles.title">数量</view>
         <view :class="styles['rent-suit-number']">
@@ -65,7 +63,7 @@
                   callback: confirmRentSuit
                 }
               }"
-            ></w-modal>
+      ></w-modal>
     </view>
     <card v-else :class="styles['card-alarm']">该校区不存在可借用正装</card>
   </theme-config>
@@ -99,7 +97,7 @@ type SuitType = {
 const campusList = ref<string[]>(["屏峰", "朝晖", "莫干山"]);
 const selectCampus = ref(serviceStore.suit.lastOpenCampus || "朝晖");
 const suitSpecsList = ref<SpecItem[]>([]);
-const suitStock = ref<number>(-1);
+const suitStock = ref<number>();
 const rentSuitNumber = ref(1);
 const rentSuitSpec = ref<string>();
 const rentSuitStyle = ref<string>();
@@ -127,7 +125,7 @@ const readSuitInfo = () => {
         if(res.data.code !== 1) throw new Error(res.data.msg);
         store.commit("setCampusSuitInfo", res.data.data);
         if(serviceStore.suit.campusSuitInfo)
-          selectSuitStyle(suitsList.value[0]);
+          selectSuitStyle(serviceStore.suit.campusSuitInfo[0]);
       },
       onError: (e: Error) => {
         return `获取正装信息失败\r\n${e.message || "网络错误"}`;
@@ -155,7 +153,9 @@ const selectSuitStyle = (suit: SuitType) => {
   rentSuitNumber.value = 1;
   rentSuitSpec.value = "";
   rentSuitId.value = undefined;
-  suitStock.value = -1;
+
+  // 每次切换正装种类时，自动选择第一个默认尺码并显示剩余数量
+  selectSuitSize(suitSpecsList.value[0]);
 };
 
 const selectSuitSize = (spec: SpecItem) => {
@@ -196,15 +196,14 @@ const confirmRentSuit = () => {
       },
       onSuccess: (res) => {
         if(res.data.code !== 1) throw new Error(res.data.msg);
-        Taro.showToast({title: "正装借用申请成功", icon:"none"});
+        Taro.showToast({title: "正装借用成功", icon:"none"});
       },
       onError: (e: Error) => {
-        return `${e.message || "网络错误"}`;
+        return `获取正装信息失败\r\n${e.message || "网络错误"}`;
       }
     }
   );
   run();
-  isShowConfirm.value = false;
 };
 
 const onCancel = () => {
